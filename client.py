@@ -2,6 +2,7 @@ import argparse
 import errno
 import os
 import socket
+# from concurrent.futures.ProcessPoolExecutor
 
 
 SERVER_ADDRESS = 'localhost', 8888
@@ -21,8 +22,10 @@ def main(max_clients, max_conns):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect(SERVER_ADDRESS)
                 sock.sendall(REQUEST)
+                msg = sock.recv(1024)
                 socks.append(sock)
                 print(connection_num)
+                print(f'{msg}')
                 os._exit(0)
 
 

@@ -1,6 +1,7 @@
 import socket
 import os
 import time
+import signal
 
 
 HOST, PORT = '', 8888
@@ -41,10 +42,23 @@ HTTP/1.1 200 OK
 """
     http_response =  bytes(template, 'utf-8')
     client_connection.sendall(http_response)
-    time.sleep(20)
+    time.sleep(8)
 
 
-song = Song()
+def grim_reaper(signum, frame):
+    while True:
+        try:
+            pid, status = os.waitpid(
+                    -1,
+                    os.WNOHANG
+                    )
+            # print(f'child {pid} was terminated with status {status}')
+        except OSError:
+            return
+
+        if pid == 0: # no more zombies
+            return
+
 
 
 def serve_forever():
@@ -57,8 +71,13 @@ def serve_forever():
     listen_socket.listen(1)
     print(f'serving HTTP on port {PORT}')
 
+    signal.signal(signal.SIGCHLD, grim_reaper)
+
     # accept
     while True:
+        # try:
+            # client_connection, client_address = listen_socket.accept()
+        # except 
         client_connection, client_address = listen_socket.accept()
         line = song.next_line()
 
@@ -72,9 +91,8 @@ def serve_forever():
             client_connection.close()
 
 
+song = Song()
+
+
 if __name__ == '__main__':
     serve_forever()
-
-
-
-
