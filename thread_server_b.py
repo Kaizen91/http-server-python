@@ -1,12 +1,10 @@
 import socket
 import os
 import time
-import signal
 from Song import Song
-
+from concurrent import futures
 HOST, PORT = '', 8888
 REQUEST_QUEUE_SIZE = 5
-
 
 
 def handle_request(client_connection, line):
@@ -27,23 +25,6 @@ HTTP/1.1 200 OK
     client_connection.sendall(http_response)
     time.sleep(8)
 
-
-def grim_reaper(signum, frame):
-    while True:
-        try:
-            pid, status = os.waitpid(
-                    -1,
-                    os.WNOHANG
-                    )
-            # print(f'child {pid} was terminated with status {status}')
-        except OSError:
-            return
-
-        if pid == 0: # no more zombies
-            return
-
-
-
 def serve_forever():
     # Create a socket
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,8 +35,6 @@ def serve_forever():
     listen_socket.listen(1)
     print(f'serving HTTP on port {PORT}')
 
-    signal.signal(signal.SIGCHLD, grim_reaper)
-
     # accept
     while True:
         # try:
@@ -63,16 +42,6 @@ def serve_forever():
         # except 
         client_connection, client_address = listen_socket.accept()
         line = song.next_line()
-
-        pid = os.fork()
-        if pid == 0: #child
-            listen_socket.close() #close child copy
-            handle_request(client_connection, line)
-            client_connection.close()
-            os._exit(0) #child exits here
-        else: # parent
-            client_connection.close()
-
 
 song = Song()
 
