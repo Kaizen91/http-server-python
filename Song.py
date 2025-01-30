@@ -1,8 +1,8 @@
 class Song():
     def __init__(self):
         self.lyrics = """Heeey HeeeEEEEyyyyy Baaaby!
-            Ooooooooh! Aaaaaaah!
-            I want to knoOOOooOOO will you be my girl?"""
+Ooooooooh! Aaaaaaah!
+I want to knoOOOooOOO will you be my girl?"""
         self.lines = self._gen_lines()
 
     def _gen_lines(self):
